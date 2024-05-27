@@ -5,10 +5,10 @@ const router = Router();
 
 const userController = new UserController();
 
-router.get("/", userController.userList);
-router.get("/:id", userController.userDetail);
-router.post("/", userController.userCreate);
-router.put("/:id", userController.userUpdate);
-router.delete("/:id", userController.userDelete);
+router.get("/", userController.allUsers);
+router.get("/:id", userController.userById);
+router.post("/", userController.createUser);
+router.put("/:id", userController.updateUser);
+router.delete("/:id", userController.deleteUser);
 
 export default router;

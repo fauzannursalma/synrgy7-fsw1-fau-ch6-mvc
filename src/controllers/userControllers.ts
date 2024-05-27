@@ -1,14 +1,54 @@
 import { Response, Request } from "express";
-import { UserModel } from "../db/models/users";
+import { userService } from "../services/userServices";
 
 export class UserController {
-  userList = async (req: Request, res: Response) => {
+  userById = async (req: Request, res: Response) => {
+    const { id } = req.params;
     try {
-      const users = await UserModel.query();
+      const user = await userService.getUserById(id);
       return res.status(200).json({
         code: 200,
         status: "success",
-        message: "User list",
+        message: "User found",
+        data: user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal Server Error",
+        data: null,
+      });
+    }
+  };
+
+  userByEmail = async (req: Request, res: Response) => {
+    const { email } = req.params;
+    try {
+      const user = await userService.getUserByEmail(email);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "User found",
+        data: user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        code: 500,
+        status: "error",
+        message: "Internal Server Error",
+        data: null,
+      });
+    }
+  };
+
+  allUsers = async (req: Request, res: Response) => {
+    try {
+      const users = await userService.getAllUsers();
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "All users",
         data: users,
       });
     } catch (error) {
@@ -21,33 +61,15 @@ export class UserController {
     }
   };
 
-  userDetail = async (req: Request, res: Response) => {
+  createUser = async (req: Request, res: Response) => {
+    const user = req.body;
     try {
-      const user = await UserModel.query().findById(req.params.id);
+      const newUser = await userService.createUser(user);
       return res.status(200).json({
         code: 200,
         status: "success",
-        message: "User detail",
-        data: user,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        code: 500,
-        status: "error",
-        message: "Internal Server Error",
-        data: null,
-      });
-    }
-  };
-
-  userCreate = async (req: Request, res: Response) => {
-    try {
-      const user = await UserModel.query().insert(req.body);
-      return res.status(201).json({
-        code: 201,
-        status: "success",
         message: "User created",
-        data: user,
+        data: newUser,
       });
     } catch (error) {
       return res.status(500).json({
@@ -59,25 +81,17 @@ export class UserController {
     }
   };
 
-  userUpdate = async (req: Request, res: Response) => {
+  updateUser = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const user = req.body;
     try {
-      const user = await UserModel.query().findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({
-          code: 404,
-          status: "error",
-          message: "User not found",
-          data: null,
-        });
-      } else {
-        await UserModel.query().findById(req.params.id).patch(req.body);
-        return res.status(200).json({
-          code: 200,
-          status: "success",
-          message: "User updated",
-          data: user,
-        });
-      }
+      const updatedUser = await userService.updateUser(id, user);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "User updated",
+        data: updatedUser,
+      });
     } catch (error) {
       return res.status(500).json({
         code: 500,
@@ -88,25 +102,16 @@ export class UserController {
     }
   };
 
-  userDelete = async (req: Request, res: Response) => {
+  deleteUser = async (req: Request, res: Response) => {
+    const { id } = req.params;
     try {
-      const user = await UserModel.query().findById(req.params.id);
-      if (!user) {
-        return res.status(404).json({
-          code: 404,
-          status: "error",
-          message: "User not found",
-          data: null,
-        });
-      } else {
-        await UserModel.query().deleteById(req.params.id);
-        return res.status(200).json({
-          code: 200,
-          status: "success",
-          message: "User deleted",
-          data: user,
-        });
-      }
+      await userService.deleteUser(id);
+      return res.status(200).json({
+        code: 200,
+        status: "success",
+        message: "User deleted",
+        data: null,
+      });
     } catch (error) {
       return res.status(500).json({
         code: 500,
